@@ -1,38 +1,42 @@
 h1 {
-    text-align: center;
-    color: blueviolet;
-    font-size: 48px;
+  text-align: center;
+  color: blueviolet;
+  font-size: 48px;
 }
 
 .drawing-container {
-    display: flex;
-    justify-content: center;
+  display: flex;
+  justify-content: center;
 }
 
 .tools-container {
-    margin: auto;
-    width: 900px
+  margin: auto;
+  width: 900px;
 }
 
 ul {
-    list-style-type: none;
-    margin: 0;
-    padding: 0;
-    overflow: hidden;
-    background-color: #e7e7e7;
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background-color: #e7e7e7;
 }
-  
+
 li {
-    float: left;
+  float: left;
 }
 
 button {
-    background-color: #4CAF50; /* Green */
-    border: none;
-    color: white;
-    padding: 15px 32px;
-    text-align: center;
-    display: inline-block;
-    font-size: 14px;
-    cursor:pointer;
-  }
+  background-color: #4caf50; /* Green */
+  border: none;
+  color: white;
+  padding: 15px 32px;
+  text-align: center;
+  display: inline-block;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+#btn-clear {
+  background-color: red;
+}
