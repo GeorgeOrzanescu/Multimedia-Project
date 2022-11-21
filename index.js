@@ -6,10 +6,49 @@ const lineBtn = document.getElementById("btn-line");
 const ellipseBtn = document.getElementById("btn-ellipse");
 const clearBtn = document.getElementById("btn-clear");
 
+let selectedElement = false;
+
 const drawRectangle = () => {
   const rectangle = document.createElementNS(svgNS, "rect");
+  rectangle.classList.add("moveble");
+  rectangle.setAttribute("x", 0);
+  rectangle.setAttribute("y", 0);
   rectangle.setAttribute("height", "200");
   rectangle.setAttribute("width", "200");
+
+  // add listeners for moving the rectangle
+  svg.addEventListener("mousedown", startDrag);
+  svg.addEventListener("mousemove", drag);
+  svg.addEventListener("mouseup", endDrag);
+  svg.addEventListener("mouseleave", endDrag);
+
+  function startDrag(event) {
+    if (event.target.classList.contains("moveble")) {
+      selectedElement = event.target;
+      console.log(selectedElement);
+    }
+  }
+
+  function drag(event) {
+    if (selectedElement) {
+      event.preventDefault();
+      var coord = getMousePosition(event);
+      selectedElement.setAttributeNS(null, "x", coord.x);
+      selectedElement.setAttributeNS(null, "y", coord.y);
+    }
+  }
+
+  function getMousePosition(event) {
+    var CTM = svg.getScreenCTM();
+    return {
+      x: (event.clientX - CTM.e) / CTM.a,
+      y: (event.clientY - CTM.f) / CTM.d,
+    };
+  }
+
+  function endDrag(event) {
+    selectedElement = null;
+  }
 
   svg.appendChild(rectangle);
 };
