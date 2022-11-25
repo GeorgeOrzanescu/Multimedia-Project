@@ -6,7 +6,15 @@ const lineBtn = document.getElementById("btn-line");
 const ellipseBtn = document.getElementById("btn-ellipse");
 const clearBtn = document.getElementById("btn-clear");
 
+const colorPicker = document.getElementById("color-picker");
+
 let selectedElement = false;
+let selectedColor = "black";
+
+// event listenr for color picker
+colorPicker.addEventListener("change", (event) => {
+  selectedColor = event.target.value;
+});
 
 const drawRectangle = () => {
   const rectangle = document.createElementNS(svgNS, "rect");
@@ -15,6 +23,9 @@ const drawRectangle = () => {
   rectangle.setAttribute("y", 0);
   rectangle.setAttribute("height", "200");
   rectangle.setAttribute("width", "200");
+
+  // add current picked color
+  rectangle.setAttribute("fill", selectedColor);
 
   // add listeners for moving the rectangle
   svg.addEventListener("mousedown", startDrag);
@@ -55,21 +66,98 @@ const drawRectangle = () => {
 
 const drawLine = () => {
   const line = document.createElementNS(svgNS, "line");
+  line.classList.add("moveble");
+
   line.setAttribute("x1", "10");
   line.setAttribute("y1", "10");
   line.setAttribute("x2", "200");
   line.setAttribute("y2", "200");
   line.setAttribute("stroke", "black");
 
+  // add current picked color
+  line.setAttribute("fill", selectedColor);
+
+  // add listeners for moving the rectangle
+  svg.addEventListener("mousedown", startDrag);
+  svg.addEventListener("mousemove", drag);
+  svg.addEventListener("mouseup", endDrag);
+  svg.addEventListener("mouseleave", endDrag);
+
+  function startDrag(event) {
+    if (event.target.classList.contains("moveble")) {
+      selectedElement = event.target;
+      console.log(selectedElement);
+    }
+  }
+
+  function drag(event) {
+    if (selectedElement) {
+      event.preventDefault();
+      var coord = getMousePosition(event);
+      selectedElement.setAttributeNS(null, "x1", coord.x);
+      selectedElement.setAttributeNS(null, "y1", coord.y);
+    }
+  }
+
+  function getMousePosition(event) {
+    var CTM = svg.getScreenCTM();
+    return {
+      x: (event.clientX - CTM.e) / CTM.a,
+      y: (event.clientY - CTM.f) / CTM.d,
+    };
+  }
+
+  function endDrag(event) {
+    selectedElement = null;
+  }
+
   svg.appendChild(line);
 };
 
 const drawEllipse = () => {
   const ellipse = document.createElementNS(svgNS, "ellipse");
+  ellipse.classList.add("moveble");
   ellipse.setAttribute("cx", "100");
   ellipse.setAttribute("cy", "50");
   ellipse.setAttribute("rx", "100");
   ellipse.setAttribute("ry", "50");
+
+  // add current picked color
+  ellipse.setAttribute("fill", selectedColor);
+
+  // add listeners for moving the rectangle
+  svg.addEventListener("mousedown", startDrag);
+  svg.addEventListener("mousemove", drag);
+  svg.addEventListener("mouseup", endDrag);
+  svg.addEventListener("mouseleave", endDrag);
+
+  function startDrag(event) {
+    if (event.target.classList.contains("moveble")) {
+      selectedElement = event.target;
+      console.log(selectedElement);
+    }
+  }
+
+  function drag(event) {
+    if (selectedElement) {
+      event.preventDefault();
+      var coord = getMousePosition(event);
+      selectedElement.setAttributeNS(null, "cx", coord.x);
+      selectedElement.setAttributeNS(null, "cy", coord.y);
+    }
+  }
+
+  function getMousePosition(event) {
+    var CTM = svg.getScreenCTM();
+    return {
+      x: (event.clientX - CTM.e) / CTM.a,
+      y: (event.clientY - CTM.f) / CTM.d,
+    };
+  }
+
+  function endDrag(event) {
+    selectedElement = null;
+  }
 
   svg.appendChild(ellipse);
 };
