@@ -5,12 +5,32 @@ const rectBtn = document.getElementById("btn-rect");
 const lineBtn = document.getElementById("btn-line");
 const ellipseBtn = document.getElementById("btn-ellipse");
 const clearBtn = document.getElementById("btn-clear");
-
+const downloadBtn = document.getElementById("btn-download");
 const colorPicker = document.getElementById("color-picker");
 
 let selectedElement = false;
 let selectedColor = "black";
 
+// event listener for downloading image
+downloadBtn.addEventListener("click", (event) => {
+  event.preventDefault();
+  downloadAsPNG();
+});
+
+function downloadAsPNG() {
+  let serializer = new XMLSerializer();
+  let sourceData = serializer.serializeToString(svg);
+  let svgBlob = new Blob([sourceData], {
+    type: "image/svg+xml;charset=utf-8",
+  });
+  let svgURL = URL.createObjectURL(svgBlob);
+  let downloadLink = document.createElement("a");
+  downloadLink.href = svgURL;
+  downloadLink.download = "svg";
+  document.body.append(downloadLink);
+  downloadLink.click();
+  document.body.removeChild(downloadLink);
+}
 // event listenr for color picker
 colorPicker.addEventListener("change", (event) => {
   selectedColor = event.target.value;
@@ -75,7 +95,7 @@ const drawLine = () => {
   line.setAttribute("stroke", "black");
 
   // add current picked color
-  line.setAttribute("fill", selectedColor);
+  line.setAttribute("stroke", selectedColor);
 
   // add listeners for moving the rectangle
   svg.addEventListener("mousedown", startDrag);
