@@ -6,7 +6,7 @@ const lineBtn = document.getElementById("btn-line");
 const ellipseBtn = document.getElementById("btn-ellipse");
 const clearBtn = document.getElementById("btn-clear");
 const downloadBtn = document.getElementById("btn-download");
-const colorPicker = document.getElementById("color-picker");
+const colorPicker = document.getElementById("color-names");
 
 let selectedElement = false;
 let selectedColor = "black";
@@ -17,7 +17,7 @@ downloadBtn.addEventListener("click", (event) => {
   downloadAsPNG();
 });
 
-function downloadAsPNG() {
+function downloadAsSVG() {
   let serializer = new XMLSerializer();
   let sourceData = serializer.serializeToString(svg);
   let svgBlob = new Blob([sourceData], {
@@ -31,7 +31,44 @@ function downloadAsPNG() {
   downloadLink.click();
   document.body.removeChild(downloadLink);
 }
-// event listenr for color picker
+
+function downloadAsPNG() {
+  let serializer = new XMLSerializer();
+  let sourceData = serializer.serializeToString(svg);
+  let svgBlob = new Blob([sourceData], {
+    type: "image/svg+xml;charset=utf-8",
+  });
+
+  let svgURL = URL.createObjectURL(svgBlob);
+  let canvas = document.createElement("canvas");
+  let canvasWidth = 900;
+  let canvasHeight = 600;
+
+  let context = canvas.getContext("2d");
+
+  canvas.width = canvasWidth;
+  canvas.height = canvasHeight;
+
+    let image = new Image();
+    image.onload = () => {
+      context.drawImage(image,0,0);
+      let imgURL = canvas.toDataURL("image/png");
+      let downloadLink = document.createElement("a");
+      downloadLink.href = imgURL;
+      downloadLink.download = "png";
+
+
+      document.body.append(downloadLink);
+      downloadLink.click();
+      document.body.removeChild(downloadLink);
+
+    };
+
+  image.src = svgURL;
+}
+
+
+// event listener for color picker
 colorPicker.addEventListener("change", (event) => {
   selectedColor = event.target.value;
 });
@@ -77,7 +114,7 @@ const drawRectangle = () => {
     };
   }
 
-  function endDrag(event) {
+  function endDrag() {
     selectedElement = null;
   }
 
