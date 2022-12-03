@@ -17,6 +17,8 @@ downloadBtn.addEventListener("click", (event) => {
   downloadAsPNG();
 });
 
+
+
 function downloadAsSVG() {
   let serializer = new XMLSerializer();
   let sourceData = serializer.serializeToString(svg);
@@ -75,7 +77,10 @@ colorPicker.addEventListener("change", (event) => {
 
 const drawRectangle = () => {
   const rectangle = document.createElementNS(svgNS, "rect");
+  const id = "rect" + (Math.random());
+
   rectangle.classList.add("moveble");
+  rectangle.setAttribute("id",id);
   rectangle.setAttribute("x", 0);
   rectangle.setAttribute("y", 0);
   rectangle.setAttribute("height", "200");
@@ -89,6 +94,17 @@ const drawRectangle = () => {
   svg.addEventListener("mousemove", drag);
   svg.addEventListener("mouseup", endDrag);
   svg.addEventListener("mouseleave", endDrag);
+
+  document.addEventListener("keypress",deleteRect);
+
+  function deleteRect(event) {
+    const rect = document.getElementById(id);
+    if (event.key === "d") {
+      rect.remove();
+      document.removeEventListener("keypress",deleteRect);
+    }
+  }
+
 
   function startDrag(event) {
     if (event.target.classList.contains("moveble")) {
