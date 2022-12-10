@@ -1,3 +1,6 @@
+/**
+ * Define and initialize all elements required
+ */
 const svgNS = "http://www.w3.org/2000/svg";
 const svg = document.getElementById("drawing-area");
 
@@ -5,20 +8,39 @@ const rectBtn = document.getElementById("btn-rect");
 const lineBtn = document.getElementById("btn-line");
 const ellipseBtn = document.getElementById("btn-ellipse");
 const clearBtn = document.getElementById("btn-clear");
-const downloadBtn = document.getElementById("btn-download");
+const downloadBtnAsSVG = document.getElementById("btn-download-svg");
+const downloadBtnAsPNG = document.getElementById("btn-download-png");
 const colorPicker = document.getElementById("color-names");
 
-let selectedElement = false;
+// this will store our selected svg element shape and the one hovered for deleting
+let selectedElement = null;
+let hoveredElement = null;
 let selectedColor = "black";
 
-// event listener for downloading image
-downloadBtn.addEventListener("click", (event) => {
+// -----------------------------------------------------------------------
+
+// event listener for downloading image as SVG
+downloadBtnAsSVG.addEventListener("click", (event) => {
+  event.preventDefault();
+  downloadAsSVG();
+});
+
+// event listener for downloading image as PNG
+downloadBtnAsPNG.addEventListener("click", (event) => {
   event.preventDefault();
   downloadAsPNG();
 });
 
+document.addEventListener("mouseover", (e) => {
+  hoveredElement = e.target;
+});
 
+// add listeners for deleting the rectangle
+document.addEventListener("keypress", deleteShape);
 
+/**
+ * Function that performs that performs SVG downloading
+ */
 function downloadAsSVG() {
   let serializer = new XMLSerializer();
   let sourceData = serializer.serializeToString(svg);
@@ -34,6 +56,9 @@ function downloadAsSVG() {
   document.body.removeChild(downloadLink);
 }
 
+/**
+ * Function that performs SVG downloading as PNG
+ */
 function downloadAsPNG() {
   let serializer = new XMLSerializer();
   let sourceData = serializer.serializeToString(svg);
@@ -51,36 +76,49 @@ function downloadAsPNG() {
   canvas.width = canvasWidth;
   canvas.height = canvasHeight;
 
-    let image = new Image();
-    image.onload = () => {
-      context.drawImage(image,0,0);
-      let imgURL = canvas.toDataURL("image/png");
-      let downloadLink = document.createElement("a");
-      downloadLink.href = imgURL;
-      downloadLink.download = "png";
+  let image = new Image();
+  // handler for the onload event on the image that will save
+  image.onload = () => {
+    context.drawImage(image, 0, 0);
+    let imgURL = canvas.toDataURL("image/png");
+    let downloadLink = document.createElement("a");
+    downloadLink.href = imgURL;
+    downloadLink.download = "png";
 
-
-      document.body.append(downloadLink);
-      downloadLink.click();
-      document.body.removeChild(downloadLink);
-
-    };
+    document.body.append(downloadLink);
+    downloadLink.click();
+    document.body.removeChild(downloadLink);
+  };
 
   image.src = svgURL;
 }
-
 
 // event listener for color picker
 colorPicker.addEventListener("change", (event) => {
   selectedColor = event.target.value;
 });
 
+/**
+ *
+ * @param {Event} event
+ */
+function deleteShape(event) {
+  if (event.key === "d") {
+    if (hoveredElement.id.includes("shape")) {
+      hoveredElement.remove();
+    }
+  }
+}
+
+/**
+ * Function that handles drawing rectangles
+ */
 const drawRectangle = () => {
   const rectangle = document.createElementNS(svgNS, "rect");
-  const id = "rect" + (Math.random());
+  const id = "shape" + Math.random();
 
   rectangle.classList.add("moveble");
-  rectangle.setAttribute("id",id);
+  rectangle.setAttribute("id", id);
   rectangle.setAttribute("x", 0);
   rectangle.setAttribute("y", 0);
   rectangle.setAttribute("height", "200");
@@ -95,17 +133,6 @@ const drawRectangle = () => {
   svg.addEventListener("mouseup", endDrag);
   svg.addEventListener("mouseleave", endDrag);
 
-  document.addEventListener("keypress",deleteRect);
-
-  function deleteRect(event) {
-    const rect = document.getElementById(id);
-    if (event.key === "d") {
-      rect.remove();
-      document.removeEventListener("keypress",deleteRect);
-    }
-  }
-
-
   function startDrag(event) {
     if (event.target.classList.contains("moveble")) {
       selectedElement = event.target;
@@ -116,14 +143,14 @@ const drawRectangle = () => {
   function drag(event) {
     if (selectedElement) {
       event.preventDefault();
-      var coord = getMousePosition(event);
+      let coord = getMousePosition(event);
       selectedElement.setAttributeNS(null, "x", coord.x);
       selectedElement.setAttributeNS(null, "y", coord.y);
     }
   }
 
   function getMousePosition(event) {
-    var CTM = svg.getScreenCTM();
+    let CTM = svg.getScreenCTM();
     return {
       x: (event.clientX - CTM.e) / CTM.a,
       y: (event.clientY - CTM.f) / CTM.d,
@@ -139,8 +166,10 @@ const drawRectangle = () => {
 
 const drawLine = () => {
   const line = document.createElementNS(svgNS, "line");
-  line.classList.add("moveble");
+  const id = "shape" + Math.random();
 
+  line.classList.add("moveble");
+  line.setAttribute("id", id);
   line.setAttribute("x1", "10");
   line.setAttribute("y1", "10");
   line.setAttribute("x2", "200");
@@ -166,14 +195,14 @@ const drawLine = () => {
   function drag(event) {
     if (selectedElement) {
       event.preventDefault();
-      var coord = getMousePosition(event);
+      let coord = getMousePosition(event);
       selectedElement.setAttributeNS(null, "x1", coord.x);
       selectedElement.setAttributeNS(null, "y1", coord.y);
     }
   }
 
   function getMousePosition(event) {
-    var CTM = svg.getScreenCTM();
+    let CTM = svg.getScreenCTM();
     return {
       x: (event.clientX - CTM.e) / CTM.a,
       y: (event.clientY - CTM.f) / CTM.d,
@@ -189,7 +218,10 @@ const drawLine = () => {
 
 const drawEllipse = () => {
   const ellipse = document.createElementNS(svgNS, "ellipse");
+  const id = "shape" + Math.random();
+
   ellipse.classList.add("moveble");
+  ellipse.setAttribute("id", id);
   ellipse.setAttribute("cx", "100");
   ellipse.setAttribute("cy", "50");
   ellipse.setAttribute("rx", "100");
@@ -214,14 +246,14 @@ const drawEllipse = () => {
   function drag(event) {
     if (selectedElement) {
       event.preventDefault();
-      var coord = getMousePosition(event);
+      let coord = getMousePosition(event);
       selectedElement.setAttributeNS(null, "cx", coord.x);
       selectedElement.setAttributeNS(null, "cy", coord.y);
     }
   }
 
   function getMousePosition(event) {
-    var CTM = svg.getScreenCTM();
+    let CTM = svg.getScreenCTM();
     return {
       x: (event.clientX - CTM.e) / CTM.a,
       y: (event.clientY - CTM.f) / CTM.d,
