@@ -2,7 +2,15 @@
  * Define and initialize all elements required
  */
 const svgNS = "http://www.w3.org/2000/svg";
-const svg = document.getElementById("drawing-area");
+let svg = document.getElementById("drawing-area");
+
+// restore work from Local Storage
+const autoSavedSVG = window.localStorage.getItem("drawing");
+const autoSavedDoc = new DOMParser().parseFromString(
+  autoSavedSVG,
+  "image/svg+xml"
+); // this returns a document type
+svg.innerHTML = autoSavedDoc.documentElement.innerHTML;
 
 const rectBtn = document.getElementById("btn-rect");
 const lineBtn = document.getElementById("btn-line");
@@ -136,7 +144,6 @@ const drawRectangle = () => {
   function startDrag(event) {
     if (event.target.classList.contains("moveble")) {
       selectedElement = event.target;
-      console.log(selectedElement);
     }
   }
 
@@ -188,7 +195,6 @@ const drawLine = () => {
   function startDrag(event) {
     if (event.target.classList.contains("moveble")) {
       selectedElement = event.target;
-      console.log(selectedElement);
     }
   }
 
@@ -239,7 +245,6 @@ const drawEllipse = () => {
   function startDrag(event) {
     if (event.target.classList.contains("moveble")) {
       selectedElement = event.target;
-      console.log(selectedElement);
     }
   }
 
@@ -292,3 +297,11 @@ clearBtn.addEventListener("click", () => {
   console.log("Clearing drawings");
   clearSVG(svg);
 });
+
+// autosave the SVG every 10 seconds
+setInterval(() => {
+  console.log("Autosaving SVG");
+  let serializer = new XMLSerializer();
+  let sourceData = serializer.serializeToString(svg);
+  window.localStorage.setItem("drawing", sourceData);
+}, 10000);
