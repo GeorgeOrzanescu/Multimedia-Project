@@ -135,26 +135,26 @@ const drawRectangle = () => {
   // add current picked color
   rectangle.setAttribute("fill", selectedColor);
 
-  // add listeners for moving the rectangle
-  svg.addEventListener("mousedown", startDrag);
-  svg.addEventListener("mousemove", drag);
-  svg.addEventListener("mouseup", endDrag);
-  svg.addEventListener("mouseleave", endDrag);
+  // // add listeners for moving the rectangle
+  // svg.addEventListener("mousedown", startDrag);
+  // svg.addEventListener("mousemove", drag);
+  // svg.addEventListener("mouseup", endDrag);
+  // svg.addEventListener("mouseleave", endDrag);
 
-  function startDrag(event) {
-    if (event.target.classList.contains("moveble")) {
-      selectedElement = event.target;
-    }
-  }
+  // function startDrag(event) {
+  //   if (event.target.classList.contains("moveble")) {
+  //     selectedElement = event.target;
+  //   }
+  // }
 
-  function drag(event) {
-    if (selectedElement) {
-      event.preventDefault();
-      let coord = getMousePosition(event);
-      selectedElement.setAttributeNS(null, "x", coord.x);
-      selectedElement.setAttributeNS(null, "y", coord.y);
-    }
-  }
+  // function drag(event) {
+  //   if (selectedElement) {
+  //     event.preventDefault();
+  //     let coord = getMousePosition(event);
+  //     selectedElement.setAttributeNS(null, "x", coord.x);
+  //     selectedElement.setAttributeNS(null, "y", coord.y);
+  //   }
+  // }
 
   function getMousePosition(event) {
     let CTM = svg.getScreenCTM();
@@ -164,9 +164,116 @@ const drawRectangle = () => {
     };
   }
 
-  function endDrag() {
+  // function endDrag() {
+  //   selectedElement = null;
+  // }
+
+  // ------------
+  // ... existing code for creating the rectangle element
+
+  // add listeners for moving and resizing the rectangle
+  svg.addEventListener("mousedown", startAction);
+  svg.addEventListener("mousemove", performAction);
+  svg.addEventListener("mouseup", endAction);
+  svg.addEventListener("mouseleave", endAction);
+
+  // variables to store the initial size and position of the rectangle
+  let initialWidth, initialHeight, initialX, initialY;
+
+  // flag to track whether the mouse is being used for dragging or resizing
+  let isDragging = false;
+  let isResizing = false;
+
+  // function startAction(event) {
+  //   if (event.target.classList.contains("moveble")) {
+  //     // start dragging if the mouse is clicked on the rectangle
+  //     isDragging = true;
+  //     selectedElement = event.target;
+  //   } else {
+  //     // start resizing if the mouse is clicked on the SVG outside the rectangle
+  //     isResizing = true;
+  //     selectedElement = hoveredElement;
+  //     // store the initial size and position of the rectangle
+  //     initialWidth = parseInt(rectangle.getAttribute("width"));
+  //     initialHeight = parseInt(rectangle.getAttribute("height"));
+  //     initialX = parseInt(rectangle.getAttribute("x"));
+  //     initialY = parseInt(rectangle.getAttribute("y"));
+  //   }
+  // }
+
+  function performAction(event) {
+    if (isDragging) {
+      // perform dragging if the flag is set
+      event.preventDefault();
+      let coord = getMousePosition(event);
+      selectedElement.setAttributeNS(null, "x", coord.x);
+      selectedElement.setAttributeNS(null, "y", coord.y);
+    } else if (isResizing) {
+      // perform resizing if the flag is set
+      event.preventDefault();
+      let coord = getMousePosition(event);
+
+      // calculate the new size of the rectangle based on the mouse movement
+      let newWidth = initialWidth + coord.x - initialX;
+      let newHeight = initialHeight + coord.y - initialY;
+
+      // update the width and height attributes of the rectangle
+      selectedElement.setAttribute("width", newWidth);
+      selectedElement.setAttribute("height", newHeight);
+    }
+  }
+
+  function startAction(event) {
+    if (event.target.classList.contains("moveble")) {
+      // check if the mouse is clicked on the corners of the rectangle to initiate resizing
+      let rect = event.target.getBoundingClientRect();
+      let x = event.clientX;
+      let y = event.clientY;
+      let topLeft =
+        x >= rect.left &&
+        x <= rect.left + 10 &&
+        y >= rect.top &&
+        y <= rect.top + 10;
+      let topRight =
+        x >= rect.right - 10 &&
+        x <= rect.right &&
+        y >= rect.top &&
+        y <= rect.top + 10;
+      let bottomLeft =
+        x >= rect.left &&
+        x <= rect.left + 10 &&
+        y >= rect.bottom - 10 &&
+        y <= rect.bottom;
+      let bottomRight =
+        x >= rect.right - 10 &&
+        x <= rect.right &&
+        y >= rect.bottom - 10 &&
+        y <= rect.bottom;
+      if (topLeft || topRight || bottomLeft || bottomRight) {
+        // start resizing if the mouse is clicked on the corners of the rectangle
+        isResizing = true;
+        selectedElement = event.target;
+        // store the initial size and position of the rectangle
+        initialWidth = parseInt(rectangle.getAttribute("width"));
+        initialHeight = parseInt(rectangle.getAttribute("height"));
+        initialX = parseInt(rectangle.getAttribute("x"));
+        initialY = parseInt(rectangle.getAttribute("y"));
+      } else {
+        // start dragging if the mouse is clicked on the body of the rectangle
+        isDragging = true;
+        selectedElement = event.target;
+      }
+    }
+  }
+
+  function endAction() {
+    // reset the flags and the selected element when the mouse is released
+    isDragging = false;
+    isResizing = false;
     selectedElement = null;
   }
+
+  //---------------
 
   svg.appendChild(rectangle);
 };
