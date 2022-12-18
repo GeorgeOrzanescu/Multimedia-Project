@@ -14,7 +14,7 @@ h1 {
   width: 900px;
 }
 
-ul {
+ul.menu {
   list-style-type: none;
   margin: 0;
   padding: 0;
@@ -22,8 +22,8 @@ ul {
   background-color: #e7e7e7;
 }
 
-li {
-  float: left;
+ul.legend {
+  list-style-type: circle;
 }
 
 button {

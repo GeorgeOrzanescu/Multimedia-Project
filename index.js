@@ -25,7 +25,7 @@ let selectedElement = null;
 let hoveredElement = null;
 let selectedColor = "black";
 
-// -----------------------------------------------------------------------
+
 
 // event listener for downloading image as SVG
 downloadBtnAsSVG.addEventListener("click", (event) => {
@@ -173,8 +173,9 @@ const drawRectangle = () => {
       let newHeight = initialHeight + coordinates.y - initialY;
 
       // update the width and height attributes of the rectangle
-      selectedElement.setAttribute("width", newWidth );
-      selectedElement.setAttribute("height", newHeight);
+      // don't want to go under 0 or the rectangle will disappear
+      selectedElement.setAttribute("width", newWidth < 0 ? 10 : newWidth);
+      selectedElement.setAttribute("height", newHeight < 0 ? 10 : newHeight);
     }
   }
 
@@ -213,8 +214,6 @@ const drawRectangle = () => {
     isResizing = false;
     selectedElement = null;
   }
-
-  //---------------
 
   svg.appendChild(rectangle);
 };
