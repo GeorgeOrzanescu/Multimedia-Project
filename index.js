@@ -47,7 +47,7 @@ document.addEventListener("mouseover", (e) => {
 document.addEventListener("keypress", deleteShape);
 
 /**
- * Function that performs that performs SVG downloading
+ * Function that performs SVG downloading
  */
 function downloadAsSVG() {
   let serializer = new XMLSerializer();
@@ -108,7 +108,7 @@ colorPicker.addEventListener("change", (event) => {
 
 /**
  *
- * @param {Event} event
+ * @param {KeyboardEvent} event
  */
 function deleteShape(event) {
   if (event.key === "d") {
@@ -125,36 +125,15 @@ const drawRectangle = () => {
   const rectangle = document.createElementNS(svgNS, "rect");
   const id = "shape" + Math.random();
 
-  rectangle.classList.add("moveble");
+  rectangle.classList.add("movable");
   rectangle.setAttribute("id", id);
-  rectangle.setAttribute("x", 0);
-  rectangle.setAttribute("y", 0);
+  rectangle.setAttribute("x", "0");
+  rectangle.setAttribute("y", "0");
   rectangle.setAttribute("height", "200");
   rectangle.setAttribute("width", "200");
 
   // add current picked color
   rectangle.setAttribute("fill", selectedColor);
-
-  // add listeners for moving the rectangle
-  svg.addEventListener("mousedown", startDrag);
-  svg.addEventListener("mousemove", drag);
-  svg.addEventListener("mouseup", endDrag);
-  svg.addEventListener("mouseleave", endDrag);
-
-  function startDrag(event) {
-    if (event.target.classList.contains("moveble")) {
-      selectedElement = event.target;
-    }
-  }
-
-  function drag(event) {
-    if (selectedElement) {
-      event.preventDefault();
-      let coord = getMousePosition(event);
-      selectedElement.setAttributeNS(null, "x", coord.x);
-      selectedElement.setAttributeNS(null, "y", coord.y);
-    }
-  }
 
   function getMousePosition(event) {
     let CTM = svg.getScreenCTM();
@@ -164,9 +143,78 @@ const drawRectangle = () => {
     };
   }
 
-  function endDrag() {
+  // add listeners for moving and resizing the rectangle
+  svg.addEventListener("mousedown", startAction);
+  svg.addEventListener("mousemove", performAction);
+  svg.addEventListener("mouseup", endAction);
+  svg.addEventListener("mouseleave", endAction);
+
+  // variables to store the initial size and position of the rectangle
+  let initialWidth, initialHeight, initialX, initialY;
+
+  // flag to track whether the mouse is being used for dragging or resizing
+  let isDragging = false;
+  let isResizing = false;
+
+  function performAction(event) {
+    if (isDragging) {
+      // perform dragging if the flag is set
+      event.preventDefault();
+      let coordinates = getMousePosition(event);
+      selectedElement.setAttributeNS(null, "x", coordinates.x);
+      selectedElement.setAttributeNS(null, "y", coordinates.y);
+    } else if (isResizing) {
+      // perform resizing if the flag is set
+      event.preventDefault();
+      let coordinates = getMousePosition(event);
+
+      // calculate the new size of the rectangle based on the mouse movement
+      let newWidth = initialWidth + coordinates.x - initialX;
+      let newHeight = initialHeight + coordinates.y - initialY;
+
+      // update the width and height attributes of the rectangle
+      selectedElement.setAttribute("width", newWidth );
+      selectedElement.setAttribute("height", newHeight);
+    }
+  }
+
+  function startAction(event) {
+    if (event.target.classList.contains("movable")) {
+      // check if the mouse is clicked on the corners of the rectangle to initiate resizing
+      let rect = event.target.getBoundingClientRect();
+      let x = event.clientX;
+      let y = event.clientY;
+      let topLeft =
+        x >= rect.left &&
+        x <= rect.left + 10 &&
+        y >= rect.top &&
+        y <= rect.top + 10;
+
+      if (topLeft) {
+        // start resizing if the mouse is clicked in the top left corner of the rectangle
+        isResizing = true;
+        selectedElement = event.target;
+        // store the initial size and position of the rectangle
+        initialWidth = parseInt(rectangle.getAttribute("width"));
+        initialHeight = parseInt(rectangle.getAttribute("height"));
+        initialX = parseInt(rectangle.getAttribute("x"));
+        initialY = parseInt(rectangle.getAttribute("y"));
+      } else {
+        // start dragging if the mouse is clicked on the body of the rectangle
+        isDragging = true;
+        selectedElement = event.target;
+      }
+    }
+  }
+
+  function endAction() {
+    // reset the flags and the selected element when the mouse is released
+    isDragging = false;
+    isResizing = false;
     selectedElement = null;
   }
+
+  //---------------
 
   svg.appendChild(rectangle);
 };
@@ -175,7 +223,7 @@ const drawLine = () => {
   const line = document.createElementNS(svgNS, "line");
   const id = "shape" + Math.random();
 
-  line.classList.add("moveble");
+  line.classList.add("movable");
   line.setAttribute("id", id);
   line.setAttribute("x1", "10");
   line.setAttribute("y1", "10");
@@ -193,7 +241,7 @@ const drawLine = () => {
   svg.addEventListener("mouseleave", endDrag);
 
   function startDrag(event) {
-    if (event.target.classList.contains("moveble")) {
+    if (event.target.classList.contains("movable")) {
       selectedElement = event.target;
     }
   }
@@ -201,9 +249,9 @@ const drawLine = () => {
   function drag(event) {
     if (selectedElement) {
       event.preventDefault();
-      let coord = getMousePosition(event);
-      selectedElement.setAttributeNS(null, "x1", coord.x);
-      selectedElement.setAttributeNS(null, "y1", coord.y);
+      let coordinates = getMousePosition(event);
+      selectedElement.setAttributeNS(null, "x1", coordinates.x);
+      selectedElement.setAttributeNS(null, "y1", coordinates.y);
     }
   }
 
@@ -215,7 +263,7 @@ const drawLine = () => {
     };
   }
 
-  function endDrag(event) {
+  function endDrag() {
     selectedElement = null;
   }
 
@@ -226,7 +274,7 @@ const drawEllipse = () => {
   const ellipse = document.createElementNS(svgNS, "ellipse");
   const id = "shape" + Math.random();
 
-  ellipse.classList.add("moveble");
+  ellipse.classList.add("movable");
   ellipse.setAttribute("id", id);
   ellipse.setAttribute("cx", "100");
   ellipse.setAttribute("cy", "50");
@@ -243,7 +291,7 @@ const drawEllipse = () => {
   svg.addEventListener("mouseleave", endDrag);
 
   function startDrag(event) {
-    if (event.target.classList.contains("moveble")) {
+    if (event.target.classList.contains("movable")) {
       selectedElement = event.target;
     }
   }
@@ -251,9 +299,9 @@ const drawEllipse = () => {
   function drag(event) {
     if (selectedElement) {
       event.preventDefault();
-      let coord = getMousePosition(event);
-      selectedElement.setAttributeNS(null, "cx", coord.x);
-      selectedElement.setAttributeNS(null, "cy", coord.y);
+      let coordinates = getMousePosition(event);
+      selectedElement.setAttributeNS(null, "cx", coordinates.x);
+      selectedElement.setAttributeNS(null, "cy", coordinates.y);
     }
   }
 
@@ -265,7 +313,7 @@ const drawEllipse = () => {
     };
   }
 
-  function endDrag(event) {
+  function endDrag() {
     selectedElement = null;
   }
 
@@ -298,9 +346,9 @@ clearBtn.addEventListener("click", () => {
   clearSVG(svg);
 });
 
-// autosave the SVG every 10 seconds
+// auto save the SVG every 10 seconds
 setInterval(() => {
-  console.log("Autosaving SVG");
+  console.log("Auto-saving SVG");
   let serializer = new XMLSerializer();
   let sourceData = serializer.serializeToString(svg);
   window.localStorage.setItem("drawing", sourceData);

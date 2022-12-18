@@ -41,6 +41,10 @@ button {
   background-color: red;
 }
 
-.moveble {
+.movable {
   cursor: move;
 }
+.movable:hover {
+  fill-opacity: 0.7;
+}
+
