@@ -118,6 +118,70 @@ function deleteShape(event) {
   }
 }
 
+const testSVGShape = () => {
+  const svgShape = document.createElementNS(svgNS, "svg")
+  svgShape.setAttribute("width","200");
+  svgShape.setAttribute("height","200");
+
+  const rectangle = document.createElementNS(svgNS, "rect");
+  const rectangleHandler = document.createElementNS(svgNS, "rect");
+
+  const id = "shape" + Math.random();
+
+  rectangle.classList.add("movable");
+  rectangle.setAttribute("id", id);
+  rectangle.setAttribute("x", "0");
+  rectangle.setAttribute("y", "0");
+  rectangle.setAttribute("height", "200");
+  rectangle.setAttribute("width", "200");
+
+
+  rectangleHandler.setAttribute("x","0");
+  rectangleHandler.setAttribute("y", "0");
+  rectangleHandler.setAttribute("height", "10");
+  rectangleHandler.setAttribute("width", "10");
+  rectangleHandler.setAttribute("fill", "red");
+
+  svgShape.append(rectangle);
+  svgShape.append(rectangleHandler);
+
+  let isResizing = false;
+  let initialMousePosition;
+
+  rectangleHandler.addEventListener("mousedown", event => {
+    isResizing = true;
+    initialMousePosition = { x: event.clientX, y: event.clientY };
+  });
+
+  rectangleHandler.addEventListener("mousemove", event => {
+    if (!isResizing) {
+      return;
+    }
+
+    const currentMousePosition = { x: event.clientX, y: event.clientY };
+    const dx = currentMousePosition.x - initialMousePosition.x;
+    const dy = currentMousePosition.y - initialMousePosition.y;
+    const currentWidth = parseInt(svgShape.getAttribute("width"));
+    const currentHeight = parseInt(svgShape.getAttribute("height"));
+    svgShape.setAttribute("width", currentWidth + dx);
+    svgShape.setAttribute("height", currentHeight + dy);
+    rectangle.setAttribute("width", currentWidth + dx);
+    rectangle.setAttribute("height", currentHeight + dy);
+    rectangleHandler.setAttribute("x", currentWidth + dx - 10);
+    rectangleHandler.setAttribute("y", currentHeight + dy - 10);
+    initialMousePosition = currentMousePosition;
+  });
+
+
+  rectangleHandler.addEventListener("mouseup", event => {
+    isResizing = false;
+  });
+
+
+
+  svg.append(svgShape);
+}
+
 /**
  * Function that handles drawing rectangles
  */
@@ -322,7 +386,8 @@ const drawEllipse = () => {
 
 rectBtn.addEventListener("click", () => {
   console.log("Drawing rectangle");
-  drawRectangle();
+  // drawRectangle();
+  testSVGShape();
 });
 
 lineBtn.addEventListener("click", () => {
